@@ -26,7 +26,6 @@ vector<string>* BuildImageList(string path, bool clear) {
 			BuildImageList(fn, false);
 		else 
 			files_list.push_back(fn);
-		cout << fn << endl;
 	}
 	return &files_list;
 }

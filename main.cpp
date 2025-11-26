@@ -20,6 +20,10 @@
 vector<string>* imgpaths = nullptr;
 int main(int argc, char *argv[])
 {
+	// seed randomness
+	srand((unsigned)time(NULL));
+	cout << rand() << endl;
+
 	int i = 1;
 	while (i < argc) {
 		std::string arg = argv[i];
@@ -44,7 +48,8 @@ int main(int argc, char *argv[])
 	bool running = true;
 
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_CreateWindowAndRenderer("framebow", 1920, 1080, 0, &window, &renderer);
+	uint VIDEO_FLAGS = 0 | SDL_WINDOW_FULLSCREEN;
+	SDL_CreateWindowAndRenderer("framebow", 1920, 1080, VIDEO_FLAGS, &window, &renderer);
 
 	std::string path = "/home/hakan/Downloads/lwalpapers/wallpapers/b-1.jpg";
 	SDL_Texture* texture = LoadAsTexture(path, renderer);
@@ -66,27 +71,31 @@ int main(int argc, char *argv[])
 
 		tick = SDL_GetTicks();
 		if (tick >= static_cast<Uint64>(img_num) * ticksPerImage) {
-			const auto imgcount = imgpaths->size();
-			// ordered
-			if (RANDOM_ORDER) {
-				// get the new image
-				uint rval = rand() % (imgcount - (img_num % imgcount));
-				path = (*imgpaths)[rval];
-				
-				// swap image with end of list to prevent duplicates
-				uint eval = imgcount - (img_num % imgcount) - 1;
-				string temp = (*imgpaths)[rval];
-				(*imgpaths)[rval] = (*imgpaths)[eval];
-				(*imgpaths)[eval] = temp;
-			}
-			else
-			{
-				path = (*imgpaths)[img_num % imgcount];
-			}
-			img_num ++;
-
 			SDL_DestroyTexture(texture);
-			texture = LoadAsTexture(path, renderer);
+			texture = nullptr;
+
+			while (texture == nullptr) {
+				const auto imgcount = imgpaths->size();
+				// ordered
+				if (RANDOM_ORDER) {
+					// get the new image
+					uint rval = rand() % (imgcount - (img_num % imgcount));
+					path = (*imgpaths)[rval];
+					
+					// swap image with end of list to prevent duplicates
+					uint eval = imgcount - (img_num % imgcount) - 1;
+					string temp = (*imgpaths)[rval];
+					(*imgpaths)[rval] = (*imgpaths)[eval];
+					(*imgpaths)[eval] = temp;
+				}
+				else
+				{
+					path = (*imgpaths)[img_num % imgcount];
+				}
+				img_num ++;
+
+				texture = LoadAsTexture(path, renderer);
+			}
 
 			SDL_RenderClear(renderer);
 
@@ -114,7 +123,7 @@ int main(int argc, char *argv[])
 
 			SDL_RenderTexture(renderer, texture, NULL, &dst_rect);
 			SDL_RenderPresent(renderer);
-			std::cout << "loading image: " << path << std::endl;
+			// std::cout << "loading image: " << path << std::endl;
 			lt = tick;
 		}
 
