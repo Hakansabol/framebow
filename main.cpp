@@ -89,11 +89,29 @@ int main(int argc, char *argv[])
 			texture = LoadAsTexture(path, renderer);
 
 			SDL_RenderClear(renderer);
+
+			float base_w;
+			float base_h;
+			int targ_w;
+			int targ_h;
+			SDL_GetTextureSize(texture, &base_w, &base_h);
+			SDL_GetWindowSize(window, &targ_w, &targ_h);
+
+			float potentialWidthScale = static_cast<float>(targ_w) / base_w;
+			float potentialHeightScale = static_cast<float>(targ_h) / base_h;
+			float actualScale;
+			if (SCALE_MODE == ScaleMode::FIT)
+				actualScale = min(potentialWidthScale, potentialHeightScale);
+			if (SCALE_MODE == ScaleMode::FILL)
+				actualScale = max(potentialWidthScale, potentialHeightScale);
+
 			SDL_FRect dst_rect;
 
-			dst_rect.x = 0;
-			dst_rect.y = 0;
-			SDL_GetTextureSize(texture, &dst_rect.w, &dst_rect.h);
+			dst_rect.w = base_w * actualScale;
+			dst_rect.h = base_h * actualScale;
+			dst_rect.x = targ_w / 2.0 - dst_rect.w / 2.0;
+			dst_rect.y = targ_h / 2.0 - dst_rect.h / 2.0;
+
 			SDL_RenderTexture(renderer, texture, NULL, &dst_rect);
 			SDL_RenderPresent(renderer);
 			std::cout << "loading image: " << path << std::endl;
