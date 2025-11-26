@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	uint random_pointer {};
 
 	uint lt {};
-	uint ticksPerImage = 10;
+	uint ticksPerImage = 800;
 	while (running) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -66,23 +66,22 @@ int main(int argc, char *argv[])
 
 		tick = SDL_GetTicks();
 		if (tick >= static_cast<Uint64>(img_num) * ticksPerImage) {
+			const auto imgcount = imgpaths->size();
 			// ordered
 			if (RANDOM_ORDER) {
 				// get the new image
-				const auto imgcount = imgpaths->size();
 				uint rval = rand() % (imgcount - (img_num % imgcount));
 				path = (*imgpaths)[rval];
 				
 				// swap image with end of list to prevent duplicates
 				uint eval = imgcount - (img_num % imgcount) - 1;
 				string temp = (*imgpaths)[rval];
-				cout << imgcount << ' ' << rval << ' ' << eval << endl;
 				(*imgpaths)[rval] = (*imgpaths)[eval];
 				(*imgpaths)[eval] = temp;
 			}
 			else
 			{
-				path = (*imgpaths)[img_num];
+				path = (*imgpaths)[img_num % imgcount];
 			}
 			img_num ++;
 
@@ -97,7 +96,7 @@ int main(int argc, char *argv[])
 			SDL_GetTextureSize(texture, &dst_rect.w, &dst_rect.h);
 			SDL_RenderTexture(renderer, texture, NULL, &dst_rect);
 			SDL_RenderPresent(renderer);
-			std::cout << tick << ' ' << tick - lt << ' ' << path << std::endl;
+			std::cout << "loading image: " << path << std::endl;
 			lt = tick;
 		}
 
