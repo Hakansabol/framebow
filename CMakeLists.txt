@@ -18,6 +18,7 @@ add_executable(framebow WIN32
 	main.cpp
 	src/image_load.cpp
 	src/file_management.cpp
+	src/config.cpp
 )
 target_include_directories(framebow PRIVATE "include")
 
