@@ -2,8 +2,8 @@
 #include <SDL3/SDL_timer.h>
 #include <cstddef>
 #include <iostream>
-#include <iterator>
 #include <string>
+#include <iterator>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_main.h>
@@ -13,9 +13,30 @@
 #include <SDL3/SDL_video.h>
 
 #include "include/image_load.h"
+#include "file_management.h"
 
-int main(int argc, char* argv[])
+vector<string>* imgpaths = nullptr;
+int main(int argc, char *argv[])
 {
+	int i = 1;
+	while (i < argc) {
+		std::string arg = argv[i];
+		if (*arg.c_str() == '-') { // if its an arg
+			cout << "argument seen! " << arg << endl;
+		}
+		else {
+			std::string path = argv[1];
+			std::cout << "path " << path << std::endl;
+
+			imgpaths = BuildImageList(path, imgpaths == nullptr);
+		}
+		i ++;
+	}
+	if (imgpaths == nullptr) {
+		cout << "No folders indicated!" << endl;
+		return 0;
+	}
+
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	bool running = true;
@@ -27,12 +48,10 @@ int main(int argc, char* argv[])
 	SDL_Texture* texture = LoadAsTexture(path, renderer);
 	SDL_Texture* texture2;
 
-	int texw = texture->w;
-	int texh = texture->h;
-
 	Uint64 tick {};
 	uint img_num {};
 
+	uint lt {};
 	while (running) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -42,10 +61,9 @@ int main(int argc, char* argv[])
 		}
 
 		tick = SDL_GetTicks();
-		if (tick >= static_cast<Uint64>(img_num) * 1000) {
+		if (tick >= static_cast<Uint64>(img_num) * 100) {
 			img_num ++;
-			path = "/home/hakan/Downloads/lwalpapers/wallpapers/b-" + std::to_string(img_num) + ".jpg";
-			std::cout << tick << ' ' << path << std::endl;
+			path = (*imgpaths)[img_num];
 			SDL_DestroyTexture(texture);
 			texture = LoadAsTexture(path, renderer);
 
@@ -54,12 +72,14 @@ int main(int argc, char* argv[])
 
 			dst_rect.x = 0;
 			dst_rect.y = 0;
-			dst_rect.w = texw;
-			dst_rect.h = texh;
+			SDL_GetTextureSize(texture, &dst_rect.w, &dst_rect.h);
 			SDL_RenderTexture(renderer, texture, NULL, &dst_rect);
 			SDL_RenderPresent(renderer);
+			std::cout << tick << ' ' << tick - lt << ' ' << path << std::endl;
+			lt = tick;
 		}
 
+		SDL_Delay(100);
 	}
 
 	SDL_DestroyWindow(window);

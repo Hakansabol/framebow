@@ -11,8 +11,6 @@ SDL_Surface* LoadAsSurface(std::string path) {
 	return s;
 }
 SDL_Texture* LoadAsTexture(std::string path, SDL_Renderer* renderer) {
-	SDL_Surface* s = LoadAsSurface(path);
-	SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
-	SDL_DestroySurface(s);
+	SDL_Texture* t = IMG_LoadTexture(renderer, path.c_str());
 	return t;
 }

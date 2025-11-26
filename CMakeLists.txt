@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(framebow)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set the output directory for built objects.
 # This makes sure that the dynamic library goes into the build directory automatically.
@@ -16,6 +17,7 @@ add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 add_executable(framebow WIN32 
 	main.cpp
 	src/image_load.cpp
+	src/file_management.cpp
 )
 target_include_directories(framebow PRIVATE "include")
 
