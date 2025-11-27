@@ -48,19 +48,19 @@ int main(int argc, char *argv[])
 	bool running = true;
 
 	SDL_Init(SDL_INIT_VIDEO);
-	uint VIDEO_FLAGS = 0 | SDL_WINDOW_FULLSCREEN;
+	uint VIDEO_FLAGS = 0 | SDL_WINDOW_FULLSCREEN; ///NOTE: The first image may be scaled improperly due to fullscreen behavior.
 	SDL_CreateWindowAndRenderer("framebow", 1920, 1080, VIDEO_FLAGS, &window, &renderer);
 
-	std::string path = "/home/hakan/Downloads/lwalpapers/wallpapers/b-1.jpg";
-	SDL_Texture* texture = LoadAsTexture(path, renderer);
-	SDL_Texture* texture2;
+	std::string path;
+	SDL_Texture* texture;
 
 	Uint64 tick {};
 	uint img_num {};
 	uint random_pointer {};
+	uint images_shown {};
 
 	uint lt {};
-	uint ticksPerImage = 800;
+	uint ticksPerImage = 4000;
 	while (running) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 		}
 
 		tick = SDL_GetTicks();
-		if (tick >= static_cast<Uint64>(img_num) * ticksPerImage) {
+		if (tick >= static_cast<Uint64>(images_shown) * ticksPerImage) {
 			SDL_DestroyTexture(texture);
 			texture = nullptr;
 
@@ -123,11 +123,14 @@ int main(int argc, char *argv[])
 
 			SDL_RenderTexture(renderer, texture, NULL, &dst_rect);
 			SDL_RenderPresent(renderer);
-			// std::cout << "loading image: " << path << std::endl;
+
+			std::cout << tick - lt << " milliseconds to load image: " << path << std::endl;
 			lt = tick;
+
+			images_shown ++;
 		}
 
-		SDL_Delay(ticksPerImage);
+		SDL_Delay(1);
 	}
 
 	SDL_DestroyWindow(window);
